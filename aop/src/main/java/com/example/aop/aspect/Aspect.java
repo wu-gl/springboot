@@ -4,7 +4,7 @@ import com.example.aop.aspect.Advice;
 import com.example.aop.aspect.Pointcut;
 
 /**
- * @Description Aspect
+ * @Description 定义切面
  * @Author 吴桂林
  * @Date 2019/12/18 16:00
  * @Version 1.0

@@ -23,6 +23,7 @@ public class AopInvocationHandler implements InvocationHandler {
     }
 
 
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         if (method.getName().matches(this.aspect.getPointcut().getMethodPattern())) {

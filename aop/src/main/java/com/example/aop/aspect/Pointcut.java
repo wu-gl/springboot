@@ -1,13 +1,14 @@
 package com.example.aop.aspect;
 
 /**
- * @Description 准备增强的方法
+ * @Description 切面规则
  * @Author 吴桂林
  * @Date 2019/12/18 15:51
  * @Version 1.0
  */
 
 public class Pointcut {
+
     //类名匹配规则（正则表达式）
     private String classPattern;
 

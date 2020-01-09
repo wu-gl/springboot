@@ -1,7 +1,5 @@
 package com.example.aop;
 
-import com.example.aop.LogService;
-import com.example.aop.Test1Service;
 import com.example.aop.aspect.Advice;
 import com.example.aop.aspect.Aspect;
 import com.example.aop.aspect.IocContainer;
