@@ -1,11 +1,16 @@
 package cn.demo.spr.mv;
 
+import cn.demo.spr.di.AnnotationConfigApplicationContext;
+import cn.demo.spr.di.annotation.MyAutowired;
+import cn.demo.spr.ioc.impl.DefaultBeanFactory;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -16,7 +21,9 @@ import java.util.Map;
 public class MyServlet extends HttpServlet {
 
     // todo 这个可以写在web.xml中
-    private static final String packageNames = "cn.demo.mvc.controller";
+    private static final String packageNames = "cn.demo.spr.controller";
+    private static final String servicePackageNames = "cn.demo.spr.services";
+    DefaultBeanFactory factory = new DefaultBeanFactory();
 
     // 根据类名找controller
     private Map<String, Class> iocMap = new HashMap<>(64);
@@ -121,7 +128,7 @@ public class MyServlet extends HttpServlet {
         }
     }
 
-    private void dealHandlerMapping() throws IllegalAccessException, InstantiationException {
+    private void dealHandlerMapping() throws Exception {
         if (iocMap.isEmpty()) return;
 
         for (Map.Entry<String, Class> entry : iocMap.entrySet()) {
@@ -138,6 +145,16 @@ public class MyServlet extends HttpServlet {
                     String url = requestUrl + method.getAnnotation(MyMapping.class).value();
                     handlerMapping.put(url, method);
                     controllerMap.put(url, controllerClazz.newInstance());
+
+                    //通过反射构建类对象
+                    Field[] fields = controllerClazz.getDeclaredFields();
+                    for (Field field : fields) {
+                        if (field.isAnnotationPresent(MyAutowired.class)) {
+                            field.setAccessible(true);
+                            Object o = factory.getBean(field.getName());
+                            field.set(controllerMap.get(url), o);
+                        }
+                    }
                 }
             }
         }
@@ -148,6 +165,8 @@ public class MyServlet extends HttpServlet {
 
         findClassWithAnnotation(packagePath);
 
+
+        new AnnotationConfigApplicationContext(servicePackageNames);
     }
 
     private void findClassWithAnnotation(String filePath) throws IllegalAccessException, InstantiationException, ClassNotFoundException {

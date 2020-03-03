@@ -17,15 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultBeanFactory implements MyBeanDefinitionRegistry, MyBeanFactory {
 
-    private Map<String, Object> beanMap = new ConcurrentHashMap<>();
-    private Map<String, MyBeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
+    public static Map<String, Object> beanMap = new ConcurrentHashMap<>();
+    private static Map<String, MyBeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     @Override
     public void registerBeanDefinition(String beanName, MyBeanDefinition hkBeanDefinition) throws Exception {
         Objects.requireNonNull(beanName, "beanName不能为空");
         Objects.requireNonNull(hkBeanDefinition, "beanDefinition不能为空");
-        if (beanDefinitionMap.containsKey(beanName)){
-            throw new Exception("已存在【"+beanName+ "】的bean定义"+getBeanDefinition(beanName));
+        if (beanDefinitionMap.containsKey(beanName)) {
+            throw new Exception("已存在【" + beanName + "】的bean定义" + getBeanDefinition(beanName));
         }
         beanDefinitionMap.put(beanName, hkBeanDefinition);
     }
@@ -47,14 +47,14 @@ public class DefaultBeanFactory implements MyBeanDefinitionRegistry, MyBeanFacto
 
     /**
      * getBean的具体逻辑
-     *
+     * <p>
      * 事实上，在spring的bean定义中，还可以静态工厂方法和成员工厂方法来创建实例，但在开发中这2种用的较少，所以此处只使用构造器来创建bean
      */
-    private Object doGetBean(String beanName) throws Exception{
+    private Object doGetBean(String beanName) throws Exception {
         Objects.requireNonNull(beanName, "beanName不能为空");
         Object instance = beanMap.get(beanName);
         //如果bean已存在，则直接返回
-        if(instance != null){
+        if (instance != null) {
             return instance;
         }
         MyBeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
@@ -65,15 +65,26 @@ public class DefaultBeanFactory implements MyBeanDefinitionRegistry, MyBeanFacto
 
         //实例已创建好，通过反射执行bean的init方法
         String initMethodName = beanDefinition.getInitMethodName();
-        if(null!=initMethodName){
+        if (null != initMethodName) {
             Method method = class1.getMethod(initMethodName, null);
             method.invoke(instance, null);
         }
 
         //将单例bean放到map中，下次可直接拿到
-        if(beanDefinition.isSingleton()){
-            beanMap.put(beanName, instance);
+        if (beanDefinition.isSingleton()) {
+            beanMap.put(toLowerCaseFirstOne(beanName), instance);
         }
         return instance;
+    }
+    /**
+     * 首字母转小写
+     * @param s
+     * @return
+     */
+    public static String toLowerCaseFirstOne(String s){
+        if(Character.isLowerCase(s.charAt(0)))
+            return s;
+        else
+            return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
     }
 }

@@ -1,11 +1,13 @@
 package cn.demo.spr.di;
 
+import cn.demo.spr.di.annotation.MyAutowired;
 import cn.demo.spr.di.annotation.MyComponent;
-import com.demo.ioc.impl.DefaultBeanFactory;
-import com.demo.ioc.impl.GenericBeanDefinition;
+import cn.demo.spr.ioc.impl.DefaultBeanFactory;
+import cn.demo.spr.ioc.impl.GenericBeanDefinition;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.reflect.Field;
 import java.net.URL;
 
 /**
@@ -20,9 +22,9 @@ public class AnnotationConfigApplicationContext {
     /**
      * 有参构造方法,参数类型为指定要扫描加载的包名
      */
-    public AnnotationConfigApplicationContext(String packageName) {
+    public AnnotationConfigApplicationContext(String servicePackagePath) {
         /**扫描指定的包路径*/
-        scanPkg(packageName);
+        scanPkg(servicePackagePath);
     }
 
     /**
@@ -73,7 +75,7 @@ public class AnnotationConfigApplicationContext {
                     GenericBeanDefinition bd = new GenericBeanDefinition();
                     bd.setBeanClass(c);
                     //bd.setScope(HkBeanDefinition.PROTOTYPE);
-                    bd.setInitMethodName("init");
+                    //bd.setInitMethodName("init");
                     factory.registerBeanDefinition(key, bd);
                 }
             } catch (Exception e) {
@@ -81,4 +83,5 @@ public class AnnotationConfigApplicationContext {
             }
         }
     }
+
 }
